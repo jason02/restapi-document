@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: citizen-service
+  name: document-service
 spec:
   selector:
-    app: citizen-app
+    app: document-app
   ports:
   - protocol: "TCP"
     port: 3000
@@ -16,20 +16,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: citizen-app
+  name: document-app
 spec:
   selector:
     matchLabels:
-      app: citizen-app
+      app: document-app
   replicas: 2
   template:
     metadata:
       labels:
-        app: citizen-app
+        app: document-app
     spec:
       containers:
-      - name: restapi-operator
-        image: manfranmon/restapi-operator:v1
+      - name: restapi-document
+        image: manfranmon/restapi-document:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
