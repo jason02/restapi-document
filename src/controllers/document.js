@@ -68,18 +68,43 @@ const getAuthenticateDocument = async(req, res = response) =>{
 
 const loadDocument = async(req, res = response) => {
   const { id, urlDocument, documentTitle }= req.body;
-  const documents = db.collection('document').add({
-    id:id,
-    UrlDocument:urlDocument,
-    documentTitle:documentTitle
-  }).then((ref) => {
-    console.log("Documento añadido con ID: ", ref.id);
-    console.log();
-    res.json({
-      msg:'Se cargo documento',
-      document:  ref.id
-    });
+  const headers = req.headers.headers;
+
+  await axios.get('http://localhost:3000/api/user/validate-token', {headers:{headers}}).then(resp => {
+     
+      console.log(resp.status);
+      console.log(id);
+      if(resp.status==200){
+      const documents = db.collection('document').add({
+        id:id,
+        UrlDocument:urlDocument,
+        documentTitle:documentTitle
+      }).then((ref) => {
+        console.log("Documento añadido con ID: ", ref.id);
+        console.log();
+        res.json({
+          msg:'Se cargo documento',
+          document:  ref.id
+        });
+      });
+      }else{
+        res.json({
+          msg:'No esta authorizado para cargar documentos',
+          status: 0
+        });
+      }
+  })
+  .catch(err => {
+      // Handle Error Here
+      console.error('error');
+      res.json({
+        msg:'No esta authorizado para cargar documentos',
+        status: 0
+      });
   });
+
+
+  
  }
 
 
