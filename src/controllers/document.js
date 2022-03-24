@@ -68,9 +68,10 @@ const getAuthenticateDocument = async(req, res = response) =>{
 
 const loadDocument = async(req, res = response) => {
   const { id, urlDocument, documentTitle }= req.body;
-  const headers = req.headers.headers;
+  // const headers = req.headers.headers;
+  const headers = req.header('tokenheaderkey');
 
-  await axios.get('http://localhost:3000/api/user/validate-token', {headers:{headers}}).then(resp => {
+  await axios.get('http://169.51.207.241:32127/api/user/validate-token', {headers:{headers}}).then(resp => {
      
       console.log(resp.status);
       console.log(id);
