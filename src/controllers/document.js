@@ -2,12 +2,14 @@ const {db} = require('../firebase')
 const request = require("request");
 const axios = require('axios');
 
-const getDocument = async(req = request, res = response) => {
-    const query = await db.collection('document').get()
-    const document = query.docs[0].data()
+const getDocuments = async(req = request, res = response) => {
+  const email = req.query.email;
+    const query = await db.collection("document")
+    .where("email", "==", email).get();
+    // const documents = query.docs[0].data()
     res.json({
         msg:'get API - controlador',
-        document
+        documents:query.docs.map(doc => doc.data())
     });
 }
 
@@ -57,9 +59,12 @@ const registerUser = async(req, res = response) => {
 
   // Api para probar en postman
 const getAuthenticateDocument = async(req, res = response) =>{
+ 
   const { id, urlDocument, documentTitle }= req.body;
+  console.log(id);
   request("https://govcarpetaapp.mybluemix.net/apis/authenticateDocument/"+id+"/"+urlDocument+"/"+documentTitle,(err,response,body)=>{ 
     res.json({ 
+        status: 1,
         msg: response.body,
         code: response.statusCode
     });
@@ -67,37 +72,39 @@ const getAuthenticateDocument = async(req, res = response) =>{
 }
 
 const loadDocument = async(req, res = response) => {
-  const { id, urlDocument, documentTitle }= req.body;
+  const { id, urlDocument, documentTitle, email }= req.body;
   // const headers = req.headers.headers;
   const headers = req.header('tokenheaderkey');
 
   await axios.get('http://169.51.207.241:32127/api/user/validate-token', {headers:{headers}}).then(resp => {
      
-      console.log(resp.status);
-      console.log(id);
+    //  console.log(resp.status);
+    //  console.log(resp)
+    //  console.log(id);
       if(resp.status==200){
       const documents = db.collection('document').add({
         id:id,
         UrlDocument:urlDocument,
-        documentTitle:documentTitle
+        documentTitle:documentTitle,
+        email: email
       }).then((ref) => {
         console.log("Documento añadido con ID: ", ref.id);
-        console.log();
         res.json({
-          msg:'Se cargo documento',
-          document:  ref.id
+          msg:"Documento añadido con ID: "+ ref.id,
+          document:  ref.id,
+          status: 1
         });
       });
       }else{
         res.json({
           msg:'No esta authorizado para cargar documentos',
-          status: 0
+          status: 2
         });
       }
   })
   .catch(err => {
       // Handle Error Here
-      console.error('error');
+      console.error(err);
       res.json({
         msg:'No esta authorizado para cargar documentos',
         status: 0
@@ -156,7 +163,7 @@ const loadDocument = async(req, res = response) => {
 
 
 module.exports = {
-    getDocument,
+    getDocuments,
     getAuthenticateDocument,
     loadDocument
     // registerUser,

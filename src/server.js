@@ -7,7 +7,9 @@ class  Server{
 
     constructor(){
         this.app = express();
+        this.app.use( cors() );
         this.port = process.env.PORT;
+      
 
         this.app.use(bodyParser.urlencoded({ extended: true }))
         
@@ -19,7 +21,7 @@ class  Server{
         this.routes();
 
         //CORS
-        this.app.use( cors() );
+      
 
         //Lectura y parseo del body
         this.app.use(express.json() );
